@@ -1,5 +1,5 @@
 from datetime import datetime,timezone
-from sqlalchemy import Integer,String,Float,ForeignKey,UniqueConstraint,CheckConstraint,JSON,DateTime,Boolean,Text
+from sqlalchemy import Integer,String,Float,ForeignKey,UniqueConstraint,CheckConstraint,JSON,DateTime,Boolean,Text,Computed
 from sqlalchemy.orm import Mapped,mapped_column
 from .database import Base
 from .constants import IntakeState,ReferralState
@@ -55,9 +55,25 @@ class Triage(Base):
     confidence:Mapped[float|None]=mapped_column(Float,nullable=True)
     approved:Mapped[str|None]=mapped_column(String(20),nullable=True)
     manual_required:Mapped[bool]=mapped_column(Boolean,default=True)
+    manual_reason:Mapped[str]=mapped_column(String(200),default='')
+    rule_version:Mapped[int|None]=mapped_column(Integer,nullable=True)
+    stripped_predicted:Mapped[str|None]=mapped_column(String(20),nullable=True)
+    stripped_confidence:Mapped[float|None]=mapped_column(Float,nullable=True)
     review_note:Mapped[str]=mapped_column(String(200),default='')
     metrics:Mapped[dict]=mapped_column(JSON,default=dict)
     error:Mapped[str]=mapped_column(String(200),default='')
+class PhraseRule(Base):
+    __tablename__='phrase_rules'
+    __table_args__=(UniqueConstraint('active_flag',name='uq_single_active_rule'),)
+    id:Mapped[int]=mapped_column(primary_key=True)
+    version:Mapped[int]=mapped_column(Integer,unique=True)
+    phrases:Mapped[list]=mapped_column(JSON,default=list)
+    status:Mapped[str]=mapped_column(String(20),default='draft')
+    note:Mapped[str]=mapped_column(String(200),default='')
+    actor:Mapped[str]=mapped_column(String(40),default='')
+    active_flag:Mapped[int|None]=mapped_column(Integer,Computed("CASE WHEN status='active' THEN 1 ELSE NULL END"),nullable=True)
+    created_at:Mapped[datetime]=mapped_column(DateTime(timezone=True),default=now)
+    activated_at:Mapped[datetime|None]=mapped_column(DateTime(timezone=True),nullable=True)
 class Requirement(Base):
     __tablename__='requirements'
     __table_args__=(UniqueConstraint('topic','code'),)

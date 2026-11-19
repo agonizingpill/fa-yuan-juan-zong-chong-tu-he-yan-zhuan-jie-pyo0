@@ -19,6 +19,7 @@ def enqueue(db,data,user):
     return result
 def review(db,id,data,user):
     initial=get(db,Triage,id);case=get(db,Intake,initial.intake_id,True);row=get(db,Triage,id,True)
+    reject(row.status=='invalid','套话规则已更新，该建议失效，请重新分流')
     reject(row.status!='done','等待分流完成再复核')
     reject(row.facts_version!=case.facts_version,'事实已更正，请重新分流')
     reject(not authorized(db,case.id),'来访授权已撤回')

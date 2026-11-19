@@ -20,6 +20,9 @@ class CheckInput(BaseModel):
     agency_id:int
 class TriageInput(BaseModel):
     intake_id:int
+class PhraseRuleInput(BaseModel):
+    phrases:list[str]=Field(min_length=1,max_length=50)
+    note:str=Field(min_length=3,max_length=200)
 class ReviewInput(BaseModel):
     topic:str=Field(pattern='^(labor|housing|consumer)$')
     note:str=Field(min_length=3,max_length=200)

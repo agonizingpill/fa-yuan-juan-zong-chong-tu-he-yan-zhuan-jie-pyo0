@@ -15,6 +15,8 @@ def seed():
                 if not db.scalar(select(Requirement).where(Requirement.topic==topic,Requirement.code==code)):db.add(Requirement(topic=topic,code=code,title=name))
         for code,name,capacity,specialties in [('YN','友邻服务站',2,'labor,housing'),('HM','和睦接待室',3,'labor,consumer'),('AH','安居协作点',2,'housing,consumer')]:
             if not db.scalar(select(Agency).where(Agency.code==code)):db.add(Agency(code=code,name=name,capacity=capacity,specialties=specialties,active_count=0))
+        if not db.scalar(select(PhraseRule).where(PhraseRule.version==1)):
+            db.add(PhraseRule(version=1,phrases=['请协助登记分流','希望有人帮助','记录和联系相关接待人员','最近发生一些事情','请予以关注','谢谢'],status='active',note='初始通用提醒套话',actor='seed',activated_at=now()))
         db.flush()
         records=[('LZ030','青桥授权代表','单位劳动合同 工资考勤 劳动报酬 登记分流','青桥商行','模拟前合作人',True),('LZ031','来访者林某','青桥商行拖欠工资，加班工时尚未结算，需劳动报酬行政分流','模拟林某','青桥商行',True),('LZ032','未授权来访者','房东不退租房押金，房屋租赁合同仍在补齐','模拟陈某','模拟房东',False),('LZ033','主题待核访客','最近发生一些事情，希望有人帮助记录和联系相关接待人员','模拟周某','模拟相对人',True)]
         for code,alias,facts,client,opponent,authorized in records:
